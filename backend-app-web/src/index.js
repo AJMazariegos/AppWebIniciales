@@ -83,7 +83,7 @@ app.post('/api/login', async (req, res) => {
         const token = jwt.sign(
             { id_usuario: user.id_usuario, registro_academico: user.registro_academico },
             process.env.JWT_SECRET,
-            { expiresIn: '2h' } //token de duración 2 horas
+            { expiresIn: '4h' } //token de duración 2 horas
         );
 
         //se asigna token
