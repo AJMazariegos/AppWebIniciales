@@ -12,8 +12,8 @@ app.use(express.json());
 //RUTA DE PRUEBA
 app.get('/api/test-db', async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM curso');
-        res.json({ mensaje: 'Hay Conexion', cursos: rows });
+        //const [rows] = await db.query('SELECT * FROM curso');
+        res.json({ mensaje: 'Hay Conexion'});
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error!!!' });
@@ -26,7 +26,7 @@ app.post('/api/register', async (req, res) => {
         //se reciben los datos
         const { id_usuario, registro_academico, nombres, apellidos, correo, password } = req.body;
 
-        //validación no vacios
+        //validación campos completos
         if (!id_usuario || !registro_academico || !nombres || !apellidos || !correo || !password) {
             return res.status(400).json({ error: 'Todos los campos son obligatorios' });
         }
@@ -46,7 +46,6 @@ app.post('/api/register', async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        //atrapamos errores 
         res.status(500).json({ error: 'Error al registrar. Puede que el ID o correo ya existan.' });
     }
 });
@@ -83,7 +82,7 @@ app.post('/api/login', async (req, res) => {
         const token = jwt.sign(
             { id_usuario: user.id_usuario, registro_academico: user.registro_academico },
             process.env.JWT_SECRET,
-            { expiresIn: '4h' } //token de duración 2 horas
+            { expiresIn: '4h' } //token de duración 4 horas
         );
 
         //se asigna token
@@ -216,7 +215,7 @@ app.post('/api/comentarios', async (req, res) => {
 });
 
 // ==========================================
-// RUTA PERFIL Y CURSOS APROBADOS
+// RUTA CURSOS APROBADOS
 // ==========================================
 
 //obtener cursos aprobados del usuario (GET)
@@ -235,10 +234,7 @@ app.get('/api/usuarios/:id/cursos-aprobados', async (req, res) => {
         const [cursosAprobados] = await db.query(queryCursos, [id]);
 
         //calculo de creditos totales
-        let totalCreditos = 0;
-        cursosAprobados.forEach(curso => {
-            totalCreditos += curso.creditos;
-        });
+        const totalCreditos = cursosAprobados.reduce((suma, curso) => suma + curso.creditos, 0);
 
         res.json({
             cursos: cursosAprobados,
