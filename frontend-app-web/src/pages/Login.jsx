@@ -6,14 +6,14 @@ const Login = () => {
   // cambio entre pantallas
   const navigate = useNavigate(); 
 
-  // 'credenciales' guarda lo tecleado
+  // 'credenciales' guarda las credenciales ingresadas
   // 'setCredenciales' actualiza - cambios
   const [credenciales, setCredenciales] = useState({
     registro_academico: '',
     password: ''
   });
 
-  // si las credenciales no son correctas
+  // en caso de tener que mostrar un mensaje de error
   const [error, setError] = useState('');
 
   // cada que se presiona una tecla se actualiza
@@ -83,7 +83,7 @@ const Login = () => {
         </button>
       </form>
 
-      {/* Botón para registrar - Cambio de pantalla (register) */}
+      {/* botón para registrar - Cambio de pantalla (register) */}
       <button onClick={() => navigate('/register')} style={{ marginTop: '15px', background: 'none', border: 'none', color: '#28a745', textDecoration: 'underline', cursor: 'pointer' }}>
         ¿No tienes cuenta? Regístrate aquí
       </button>
