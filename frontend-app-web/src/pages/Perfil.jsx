@@ -4,12 +4,15 @@ import axios from 'axios';
 
 const Perfil = () => {
   const navigate = useNavigate();
+  // jalamos los datos de la memoria
   const usuarioActual = JSON.parse(localStorage.getItem('usuario'));
 
-  const [cursosAprobados, setCursosAprobados] = useState([]);
+  // datos del backend
+  const [cursosAprobados, setCursosAprobados] = useState([]); 
   const [totalCreditos, setTotalCreditos] = useState(0);
   const [error, setError] = useState('');
 
+  // ruta protegida - doble patada al login
   useEffect(() => {
     if (!usuarioActual) {
       navigate('/');
@@ -17,6 +20,7 @@ const Perfil = () => {
     }
 
 
+    // funcion para cargar los datos
     const cargarDatosDelPerfil = async () => {
       try {
         const res = await axios.get(`http://localhost:3000/api/usuarios/${usuarioActual.id_usuario}/cursos-aprobados`);
@@ -30,9 +34,14 @@ const Perfil = () => {
     cargarDatosDelPerfil();
   }, [navigate, usuarioActual]); 
 
+  // ==========================================
+  // PARTE VISUAL
+  // ==========================================
+
   return (
     <div style={{ maxWidth: '600px', margin: '40px auto', fontFamily: 'sans-serif', padding: '0 20px', color: '#e0e0e0' }}>
       
+      {/* Botón para regresar */}
       <button 
         onClick={() => navigate('/feed')} 
         style={{ marginBottom: '20px', padding: '8px 15px', background: '#4b5563', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
@@ -40,6 +49,7 @@ const Perfil = () => {
         ⬅️ Regresar al Feed
       </button>
 
+      {/* Info del Usuario - Banner */}
       <div style={{ background: '#1e1e1e', padding: '20px', borderRadius: '10px', border: '1px solid #333', textAlign: 'center', marginBottom: '30px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
         <h1 style={{ margin: '0 0 10px 0', color: '#fff' }}>Perfil de Estudiante</h1>
         <h2 style={{ margin: '0 0 5px 0', color: '#3b82f6' }}>{usuarioActual?.nombres} {usuarioActual?.apellidos}</h2>
@@ -50,6 +60,7 @@ const Perfil = () => {
 
       {error && <p style={{ color: '#ef4444', textAlign: 'center' }}>{error}</p>}
 
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #333', paddingBottom: '10px', marginBottom: '20px' }}>
         <h3 style={{ margin: '0', color: '#fff' }}>Mis Cursos Aprobados</h3>
         
@@ -58,6 +69,7 @@ const Perfil = () => {
         </div>
       </div>
 
+      {/* Espacio Cursos aprobados */}
       {cursosAprobados.length === 0 ? (
         <p style={{ textAlign: 'center', color: '#aaa' }}>Aún no tienes cursos aprobados registrados</p>
       ) : (

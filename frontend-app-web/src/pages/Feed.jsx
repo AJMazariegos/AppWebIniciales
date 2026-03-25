@@ -3,30 +3,36 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Feed = () => {
+  
   const navigate = useNavigate();
-  const usuarioActual = JSON.parse(localStorage.getItem('usuario'));
+  const usuarioActual = JSON.parse(localStorage.getItem('usuario')); // leemos el usuario
 
+  // datos que jalamos del backend
   const [publicaciones, setPublicaciones] = useState([]);
   const [cursos, setCursos] = useState([]);
   const [catedraticos, setCatedraticos] = useState([]);
   const [error, setError] = useState('');
 
+  // datos del formulario para publis
   const [nuevaPublicacion, setNuevaPublicacion] = useState({
     mensaje: '',
     curso_id: '',
     catedratico_id: ''
   });
 
-  const [publicacionActiva, setPublicacionActiva] = useState(null); 
+  // manejo de comentarios
+  const [publicacionActiva, setPublicacionActiva] = useState(null); // saber a que publicacion le dimos "ver comments"
   const [comentarios, setComentarios] = useState([]); 
   const [nuevoComentario, setNuevoComentario] = useState('');
 
+  // ruta protegida - doble patada al login
   useEffect(() => {
     if (!usuarioActual) {
       navigate('/');
       return;
     }
     
+    // función para cargar los datos - publicaciones, cursos, catedraticos
     const cargarDatos = async () => {
       try {
         const resPubs = await axios.get('http://localhost:3000/api/publicaciones');
@@ -42,16 +48,22 @@ const Feed = () => {
     cargarDatos();
   }, [navigate, usuarioActual]);
 
+  // actualiza dentro de nueva publicacion 
   const handleChange = (e) => {
     setNuevaPublicacion({ ...nuevaPublicacion, [e.target.name]: e.target.value });
   };
 
+  // ejecuta al dar 'publicar'
   const crearPublicacion = async (e) => {
     e.preventDefault();
+
+    // si falta algo no hace nada
     if (!nuevaPublicacion.mensaje || !nuevaPublicacion.curso_id || !nuevaPublicacion.catedratico_id) return;
 
     try {
+      // id unico a la publi 
       const idUnico = `PUB-${Date.now()}`;
+      // envio de datos al backend
       await axios.post('http://localhost:3000/api/publicaciones', {
         id_publicacion: idUnico,
         usuario_id_usuario: usuarioActual.id_usuario,
@@ -59,7 +71,10 @@ const Feed = () => {
         catedratico_id_catedratico: nuevaPublicacion.catedratico_id,
         mensaje: nuevaPublicacion.mensaje
       });
+
+      // limpia form
       setNuevaPublicacion({ mensaje: '', curso_id: '', catedratico_id: '' });
+      // refrescamos publis
       const resPubs = await axios.get('http://localhost:3000/api/publicaciones');
       setPublicaciones(resPubs.data);
     } catch (err) {
@@ -67,11 +82,15 @@ const Feed = () => {
     }
   };
 
+  // muestra - oculta los comentarios
   const toggleComentarios = async (id_publicacion) => {
+    // si está activa la cerramos y limpiamos comments
     if (publicacionActiva === id_publicacion) {
       setPublicacionActiva(null);
       setComentarios([]);
-    } else {
+    } 
+    // si está cerrada la abrimos y jalamos los comments
+    else {
       setPublicacionActiva(id_publicacion);
       try {
         const res = await axios.get(`http://localhost:3000/api/publicaciones/${id_publicacion}/comentarios`);
@@ -82,17 +101,22 @@ const Feed = () => {
     }
   };
 
+  // ejecuta al dar 'comentar'
   const publicarComentario = async (id_publicacion) => {
-    if (!nuevoComentario) return;
+    if (!nuevoComentario) return; // vacio no hace nada
 
     try {
+      // id unico al comentario
       const idUnico = `COM-${Date.now()}`;
+      // envio de datos al backend
       await axios.post('http://localhost:3000/api/comentarios', {
         id_comentario: idUnico,
         publicacion_id_publicacion: id_publicacion,
         usuario_id_usuario: usuarioActual.id_usuario,
         mensaje: nuevoComentario
       });
+
+      // limpiamos y refrescamos
       setNuevoComentario(''); 
       const res = await axios.get(`http://localhost:3000/api/publicaciones/${id_publicacion}/comentarios`);
       setComentarios(res.data);
@@ -101,10 +125,15 @@ const Feed = () => {
     }
   };
 
+  // limpia la memoria y regresa al login
   const cerrarSesion = () => {
     localStorage.clear();
     navigate('/');
   };
+
+  // ==========================================
+  // PARTE VISUAL
+  // ==========================================
 
   return (
     <div style={{ maxWidth: '600px', margin: '20px auto', fontFamily: 'sans-serif', color: '#e0e0e0' }}>

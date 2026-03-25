@@ -47,6 +47,7 @@ const Register = () => {
       setMensaje('¡Registro exitoso! Redirigiendo al login...');
       setError('');
       
+      // limpiar campos
       setCredencialesRegistro({
         registro_academico: '',
         nombres: '',
