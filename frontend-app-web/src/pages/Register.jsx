@@ -9,7 +9,6 @@ const Register = () => {
   // 'credencialesRegistro' guarda las credenciales ingresadas  
   // 'setCredencialesRegistro' actualiza - cambios
   const [credencialesRegistro, setCredencialesRegistro] = useState({
-    id_usuario: '',
     registro_academico: '',
     nombres: '',
     apellidos: '',
@@ -29,21 +28,26 @@ const Register = () => {
     });
   };
 
-  // ejecuta al dar 'Registrar'
   const handleSubmit = async (e) => {
     e.preventDefault(); 
     
     try {
-      // mandamos a axios al backend con las credenciales - await: espera respuesta del backend
-      await axios.post('http://localhost:3000/api/register', formData);
+      // ID automatico de usuario
+      const idUnico = `USR-${Date.now()}`;
       
-      // mostar mensaje de exito
+      // juntamos el ID con los datos enviados por el usuario
+      const datosParaEnviar = {
+        id_usuario: idUnico,
+        ...credencialesRegistro
+      };
+
+      // mandamos a axios al backend con los datos - await: espera respuesta del backend
+      await axios.post('http://localhost:3000/api/register', datosParaEnviar);
+      
       setMensaje('¡Registro exitoso! Redirigiendo al login...');
       setError('');
       
-      // limpieza cajas
-      setFormData({
-        id_usuario: '',
+      setCredencialesRegistro({
         registro_academico: '',
         nombres: '',
         apellidos: '',
@@ -51,42 +55,30 @@ const Register = () => {
         password: ''
       });
 
-      // delay de la redirección (pruebas mensaje exito)
       setTimeout(() => {
         navigate('/');
       }, 2000);
 
     } catch (err) {
-      // en caso que el backend responda con error 
       setError(err.response?.data?.error || 'Error al registrar el usuario');
       setMensaje('');
     }
   };
 
-  // ==========================================
-  // PARTE VISUAL (HTML - CSS - pokemonxyz)
-  // ==========================================
-
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '10px' }}>
-      <h2>Registro de Usuario</h2>
+    <div style={{ maxWidth: '400px', margin: '60px auto', padding: '30px', background: '#1e1e1e', border: '1px solid #333', borderRadius: '10px', boxShadow: '0 4px 10px rgba(0,0,0,0.4)', fontFamily: 'sans-serif' }}>
       
-      {/* mensajes que solo se muestran si no están vacios */}
-      {mensaje && <p style={{ color: 'green', fontWeight: 'bold' }}>{mensaje}</p>}
-      {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
+      <h2 style={{ textAlign: 'center', color: '#fff', margin: '0 0 20px 0' }}>Registro de Usuario</h2>
       
-      {/* dispara handleSubmit (ln33) al enviar el formulario */}
+      {mensaje && <p style={{ color: '#4ade80', fontWeight: 'bold', textAlign: 'center', marginBottom: '15px' }}>{mensaje}</p>}
+      
+      {error && (
+        <p style={{ color: '#ef4444', fontWeight: 'bold', textAlign: 'center', background: '#450a0a', padding: '10px', borderRadius: '5px', border: '1px solid #7f1d1d', marginBottom: '20px' }}>
+          {error}
+        </p>
+      )}
+      
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        
-        {/* txtID_Usuario */}
-        <input 
-          type="text" 
-          name="id_usuario" 
-          value={credencialesRegistro.id_usuario} 
-          placeholder="ID (ej. USR-105)" 
-          onChange={handleChange} 
-          required 
-        />
         
         {/* txtRegistroAcademico */}
         <input 
@@ -96,6 +88,7 @@ const Register = () => {
           placeholder="Registro Académico" 
           onChange={handleChange} 
           required 
+          style={{ padding: '12px', background: '#2d2d2d', color: '#fff', border: '1px solid #444', borderRadius: '5px' }}
         />
 
         {/* txtNombres */}
@@ -106,6 +99,7 @@ const Register = () => {
           placeholder="Nombres" 
           onChange={handleChange} 
           required 
+          style={{ padding: '12px', background: '#2d2d2d', color: '#fff', border: '1px solid #444', borderRadius: '5px' }}
         />
 
         {/* txtApellidos */}
@@ -116,6 +110,7 @@ const Register = () => {
           placeholder="Apellidos" 
           onChange={handleChange} 
           required 
+          style={{ padding: '12px', background: '#2d2d2d', color: '#fff', border: '1px solid #444', borderRadius: '5px' }}
         />
 
         {/* txtEmail */}
@@ -126,6 +121,7 @@ const Register = () => {
           placeholder="Correo Electrónico" 
           onChange={handleChange} 
           required 
+          style={{ padding: '12px', background: '#2d2d2d', color: '#fff', border: '1px solid #444', borderRadius: '5px' }}
         />
 
         {/* txtContraseña */}
@@ -136,15 +132,17 @@ const Register = () => {
           placeholder="Contraseña" 
           onChange={handleChange} 
           required 
+          style={{ padding: '12px', background: '#2d2d2d', color: '#fff', border: '1px solid #444', borderRadius: '5px' }}
         />
         
-        <button type="submit" style={{ padding: '10px', background: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+        {/* btnRegistrar */}
+        <button type="submit" style={{ padding: '12px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1.1em', marginTop: '10px' }}>
           Registrarse
         </button>
       </form>
       
-      {/* botón para regresar al login - Cambio de pantalla (login) */}
-      <button onClick={() => navigate('/')} style={{ marginTop: '15px', background: 'none', border: 'none', color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }}>
+      {/* botón para iniciar sesion - Cambio de pantalla (login) */}
+      <button onClick={() => navigate('/')} style={{ marginTop: '20px', background: 'none', border: 'none', color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer', width: '100%', textAlign: 'center' }}>
         ¿Ya tienes cuenta? Inicia sesión aquí
       </button>
     </div>

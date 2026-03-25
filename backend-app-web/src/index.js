@@ -92,7 +92,8 @@ app.post('/api/login', async (req, res) => {
             usuario: {
                 id_usuario: user.id_usuario,
                 nombres: user.nombres,
-                apellidos: user.apellidos
+                apellidos: user.apellidos,
+                registro_academico: user.registro_academico
             }
         });
 
