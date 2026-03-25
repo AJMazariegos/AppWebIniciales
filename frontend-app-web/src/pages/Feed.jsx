@@ -51,14 +51,17 @@ const Feed = () => {
     if (!nuevaPublicacion.mensaje || !nuevaPublicacion.curso_id || !nuevaPublicacion.catedratico_id) return;
 
     try {
-      const idAleatorio = `PUB-${Math.floor(Math.random() * 10000)}`;
+      // generación de ID único
+      const idUnico = `PUB-${Date.now()}`;
+      
       await axios.post('http://localhost:3000/api/publicaciones', {
-        id_publicacion: idAleatorio,
+        id_publicacion: idUnico,
         usuario_id_usuario: usuarioActual.id_usuario,
         curso_id_curso: nuevaPublicacion.curso_id,
         catedratico_id_catedratico: nuevaPublicacion.catedratico_id,
         mensaje: nuevaPublicacion.mensaje
       });
+      
       setNuevaPublicacion({ mensaje: '', curso_id: '', catedratico_id: '' });
       const resPubs = await axios.get('http://localhost:3000/api/publicaciones');
       setPublicaciones(resPubs.data);
@@ -86,9 +89,11 @@ const Feed = () => {
     if (!nuevoComentario) return;
 
     try {
-      const idAleatorio = `COM-${Math.floor(Math.random() * 10000)}`;
+      // generación de ID único
+      const idUnico = `COM-${Date.now()}`;
+      
       await axios.post('http://localhost:3000/api/comentarios', {
-        id_comentario: idAleatorio,
+        id_comentario: idUnico,
         publicacion_id_publicacion: id_publicacion,
         usuario_id_usuario: usuarioActual.id_usuario,
         mensaje: nuevoComentario
@@ -160,7 +165,7 @@ const Feed = () => {
             
             <div style={{ fontSize: '0.9em', color: '#555', background: '#e9ecef', padding: '10px', borderRadius: '5px' }}>
               <p style={{ margin: '0 0 5px 0' }}>📚 <strong>Curso:</strong> {pub.curso}</p>
-              <p style={{ margin: '0' }}>👨‍🏫 <strong>Catedrático:</strong> {pub.catedratico} {pub.catedratico_apellido}</p>
+              <p style={{ margin: '0' }}>🥸 <strong>Catedrático:</strong> {pub.catedratico} {pub.catedratico_apellido}</p>
             </div>
 
             <button 
