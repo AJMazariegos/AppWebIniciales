@@ -13,6 +13,21 @@ const Feed = () => {
   const [catedraticos, setCatedraticos] = useState([]);
   const [error, setError] = useState('');
 
+  // filtros test
+  const [filtroCurso, setFiltroCurso] = useState('');
+  const [filtroCatedratico, setFiltroCatedratico] = useState('');
+
+  const publicacionesFiltradas = publicaciones.filter(pub => {
+    const coincideCurso = filtroCurso === '' || pub.curso === filtroCurso;
+    
+    // Unimos nombre y apellido del catedrático para compararlo exactamente igual
+    const nombreCompletoCat = `${pub.catedratico} ${pub.catedratico_apellido}`;
+    const coincideCatedratico = filtroCatedratico === '' || nombreCompletoCat === filtroCatedratico;
+
+    // Solo pasa el colador si cumple ambas condiciones (o si los filtros están vacíos)
+    return coincideCurso && coincideCatedratico;
+  });
+
   // datos del formulario para publis
   const [nuevaPublicacion, setNuevaPublicacion] = useState({
     mensaje: '',
@@ -138,7 +153,7 @@ const Feed = () => {
   return (
     <div style={{ maxWidth: '600px', margin: '20px auto', fontFamily: 'sans-serif', color: '#e0e0e0' }}>
       
-      {/* Encabezado */}
+      {/* encabezado */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #333', paddingBottom: '10px' }}>
         <h2 style={{ color: '#fff' }}>¡Hola, {usuarioActual?.nombres}! 👋</h2>
         
@@ -152,7 +167,7 @@ const Feed = () => {
         </div>
       </div>
 
-      {/* Formulario para Crear Publicación */}
+      {/* formulario crear publi */}
       <div style={{ background: '#1e1e1e', padding: '15px', borderRadius: '8px', marginTop: '20px', border: '1px solid #333' }}>
         <h3 style={{ color: '#fff' }}>¿Qué quieres compartir?</h3>
         <form onSubmit={crearPublicacion} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -171,64 +186,86 @@ const Feed = () => {
         </form>
       </div>
 
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px' }}>
+        <h3 style={{ color: '#fff', margin: '0' }}>Últimas Publicaciones</h3>
+      </div>
+      
+      {/* test filtros */}
+      <div style={{ display: 'flex', gap: '10px', marginTop: '15px', marginBottom: '20px', background: '#1a1a1a', padding: '10px', borderRadius: '8px', border: '1px solid #333' }}>
+        <select value={filtroCurso} onChange={(e) => setFiltroCurso(e.target.value)} style={{ flex: 1, padding: '8px', background: '#2d2d2d', color: '#fff', border: '1px solid #444', borderRadius: '4px' }}>
+          <option value="">📚 Todos los cursos</option>
+          {cursos.map(c => <option key={c.id_curso} value={c.nombre_curso}>{c.nombre_curso}</option>)}
+        </select>
+
+        <select value={filtroCatedratico} onChange={(e) => setFiltroCatedratico(e.target.value)} style={{ flex: 1, padding: '8px', background: '#2d2d2d', color: '#fff', border: '1px solid #444', borderRadius: '4px' }}>
+          <option value="">👨‍🏫 Todos los catedráticos</option>
+          {catedraticos.map(cat => <option key={cat.id_catedratico} value={`${cat.nombres} ${cat.apellidos}`}>{cat.nombres} {cat.apellidos}</option>)}
+        </select>
+      </div>
+
       <h3 style={{ marginTop: '30px', color: '#fff' }}>Últimas Publicaciones</h3>
       {error && <p style={{ color: '#ef4444' }}>{error}</p>}
 
-      {/* Lista de Publicaciones */}
+      {/* lista publis */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        {publicaciones.map((pub) => (
-          <div key={pub.id_publicacion} style={{ background: '#1e1e1e', border: '1px solid #333', padding: '15px', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #333', paddingBottom: '10px', marginBottom: '10px' }}>
-              <strong style={{ color: '#fff' }}>{pub.estudiante} {pub.estudiante_apellido}</strong>
-              <span style={{ fontSize: '0.8em', color: '#aaa' }}>{pub.fecha.split('T')[0]}</span>
-            </div>
-            
-            <p style={{ margin: '0 0 10px 0', fontSize: '1.1em', color: '#ddd' }}>{pub.mensaje}</p>
-            
-            <div style={{ fontSize: '0.9em', color: '#ccc', background: '#2a2a2a', padding: '10px', borderRadius: '5px' }}>
-              <p style={{ margin: '0 0 5px 0' }}>📚 <strong>Curso:</strong> {pub.curso}</p>
-              <p style={{ margin: '0' }}>👨‍🏫 <strong>Catedrático:</strong> {pub.catedratico} {pub.catedratico_apellido}</p>
-            </div>
-
-            <button 
-              onClick={() => toggleComentarios(pub.id_publicacion)} 
-              style={{ marginTop: '10px', background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontWeight: 'bold', padding: '0' }}
-            >
-              💬 {publicacionActiva === pub.id_publicacion ? 'Ocultar Comentarios' : 'Ver Comentarios'}
-            </button>
-
-            {publicacionActiva === pub.id_publicacion && (
-              <div style={{ marginTop: '15px', padding: '15px', background: '#242424', borderRadius: '8px', borderLeft: '4px solid #3b82f6' }}>
-                <h4 style={{ margin: '0 0 10px 0', color: '#fff' }}>Comentarios</h4>
-                
-                {comentarios.length === 0 ? (
-                  <p style={{ fontSize: '0.9em', color: '#aaa' }}>No hay comentarios aún. ¡Sé el primero!</p>
-                ) : (
-                  comentarios.map(c => (
-                    <div key={c.id_comentario} style={{ marginBottom: '10px', paddingBottom: '5px', borderBottom: '1px solid #444' }}>
-                      <strong style={{ color: '#ddd' }}>{c.autor} {c.autor_apellido}</strong> <span style={{ fontSize: '0.7em', color: '#888' }}>({c.fecha.split('T')[0]})</span>
-                      <p style={{ margin: '5px 0 0 0', fontSize: '0.95em', color: '#ccc' }}>{c.mensaje}</p>
-                    </div>
-                  ))
-                )}
-                
-                <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                  <input 
-                    type="text" 
-                    value={nuevoComentario} 
-                    onChange={(e) => setNuevoComentario(e.target.value)} 
-                    placeholder="Escribe un comentario..." 
-                    style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #444', background: '#2d2d2d', color: '#fff' }}
-                  />
-                  <button onClick={() => publicarComentario(pub.id_publicacion)} style={{ padding: '8px 15px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                    Enviar
-                  </button>
-                </div>
+        {publicacionesFiltradas.length === 0 ? (
+          <p style={{ textAlign: 'center', color: '#aaa' }}>No se encontraron publicaciones con estos filtros. 😣</p>
+        ) : (
+          publicacionesFiltradas.map((pub) => (
+            <div key={pub.id_publicacion} style={{ background: '#1e1e1e', border: '1px solid #333', padding: '15px', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #333', paddingBottom: '10px', marginBottom: '10px' }}>
+                <strong style={{ color: '#fff' }}>{pub.estudiante} {pub.estudiante_apellido}</strong>
+                <span style={{ fontSize: '0.8em', color: '#aaa' }}>{pub.fecha.split('T')[0]}</span>
               </div>
-            )}
-          </div>
-        ))}
+              
+              <p style={{ margin: '0 0 10px 0', fontSize: '1.1em', color: '#ddd' }}>{pub.mensaje}</p>
+              
+              <div style={{ fontSize: '0.9em', color: '#ccc', background: '#2a2a2a', padding: '10px', borderRadius: '5px' }}>
+                <p style={{ margin: '0 0 5px 0' }}>📚 <strong>Curso:</strong> {pub.curso}</p>
+                <p style={{ margin: '0' }}>👨‍🏫 <strong>Catedrático:</strong> {pub.catedratico} {pub.catedratico_apellido}</p>
+              </div>
+
+              <button 
+                onClick={() => toggleComentarios(pub.id_publicacion)} 
+                style={{ marginTop: '10px', background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontWeight: 'bold', padding: '0' }}
+              >
+                💬 {publicacionActiva === pub.id_publicacion ? 'Ocultar Comentarios' : 'Ver Comentarios'}
+              </button>
+
+              {publicacionActiva === pub.id_publicacion && (
+                <div style={{ marginTop: '15px', padding: '15px', background: '#242424', borderRadius: '8px', borderLeft: '4px solid #3b82f6' }}>
+                  <h4 style={{ margin: '0 0 10px 0', color: '#fff' }}>Comentarios</h4>
+                  
+                  {comentarios.length === 0 ? (
+                    <p style={{ fontSize: '0.9em', color: '#aaa' }}>No hay comentarios aún. ¡Sé el primero!</p>
+                  ) : (
+                    comentarios.map(c => (
+                      <div key={c.id_comentario} style={{ marginBottom: '10px', paddingBottom: '5px', borderBottom: '1px solid #444' }}>
+                        <strong style={{ color: '#ddd' }}>{c.autor} {c.autor_apellido}</strong> <span style={{ fontSize: '0.7em', color: '#888' }}>({c.fecha.split('T')[0]})</span>
+                        <p style={{ margin: '5px 0 0 0', fontSize: '0.95em', color: '#ccc' }}>{c.mensaje}</p>
+                      </div>
+                    ))
+                  )}
+                  
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                    <input 
+                      type="text" 
+                      value={nuevoComentario} 
+                      onChange={(e) => setNuevoComentario(e.target.value)} 
+                      placeholder="Escribe un comentario..." 
+                      style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #444', background: '#2d2d2d', color: '#fff' }}
+                    />
+                    <button onClick={() => publicarComentario(pub.id_publicacion)} style={{ padding: '8px 15px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                      Enviar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </div>
 
     </div>
